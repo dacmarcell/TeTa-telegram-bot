@@ -3,7 +3,7 @@ import axios from 'axios';
 import TelegramBot from 'node-telegram-bot-api';
 
 dotenv.config();
-const telegramToken = process.env.TELEGRAM_TOKEN;
+const telegramToken = process.env.TELEGRAM_BOT_TOKEN;
 const jokeApiLanguage = '&lang=pt';
 const jokeApiBlacklistFlags = `blacklistFlags=nsfw,racist,sexist,explicit${jokeApiLanguage}`;
 const jokeApiURL = `https://v2.jokeapi.dev/joke/Any?${jokeApiBlacklistFlags}`;
