@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import axios from 'axios';
 import TelegramBot from 'node-telegram-bot-api';
+import { catApiInstance } from './utils/api-instances';
 
 dotenv.config();
 
@@ -28,48 +29,34 @@ async function fetchJokes() {
 }
 
 bot.onText(/\/start/, (msg, match) => {
-  const chatID = msg.chat.id;
+  const { id } = msg.chat;
   bot.sendMessage(
-    chatID,
+    id,
     '[TeTa] Olá! Seja bem-vindo ao melhor bot do telegram: o TeTa bot!\n\nAqui temos piadas com /piada\nrepetição com /repetir   [msg] '
   );
 });
 
 bot.onText(/\/piada/, async (msg) => {
-  const chatID = msg.chat.id;
+  const { id } = msg.chat;
   const joke = await fetchJokes();
   const response = `${joke.setup} ${joke.punchline}`;
-  bot.sendMessage(chatID, response);
+  bot.sendMessage(id, response);
 });
 
 bot.onText(/\/repetir (.+)/, (msg, match) => {
-  const chatID = msg.chat.id;
+  const { id } = msg.chat;
   if (match) {
-    bot.sendMessage(chatID, `[TeTa] ${match[1]}`);
+    bot.sendMessage(id, `[TeTa] ${match[1]}`);
   } else {
-    bot.sendMessage(chatID, '[TeTa] Conteúdo não encontrado.');
+    bot.sendMessage(id, '[TeTa] Conteúdo não encontrado.');
   }
 });
 
-const catAPI = () => {
-  const cat_api_token = process.env.CAT_API_TOKEN;
-  if (!cat_api_token) {
-    throw new Error('CAT API TOKEN in env not found.');
-  }
-  return axios.create({
-    baseURL: 'https://api.thecatapi.com/v1',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': cat_api_token,
-    },
-  });
-};
-
 bot.onText(/\/gatos/, async (msg) => {
-  const chatID = msg.chat.id;
-  const api = catAPI();
+  const { id } = msg.chat;
+  const api = catApiInstance();
   const { data } = await api.get('/images/search');
   data.map((cat: any) => {
-    bot.sendMessage(chatID, cat.url);
+    bot.sendMessage(id, cat.url);
   });
 });
