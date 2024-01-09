@@ -14,6 +14,20 @@ if (!telegramToken) throw new Error('telegramToken in env not found.');
 
 const bot = new TelegramBot(telegramToken, { polling: true });
 
+const commands = {
+  init: /\/iniciar/,
+  joke: /\/piada/,
+  repeat: /\/repetir (.+)/,
+  cat: /\/gato/,
+};
+
+/* 
+iniciar - Iniciar o BOT
+piada - BOT gera uma piada
+repetir - BOT repete a mensagem escrita a seguir pelo usuário
+gato - BOT gera uma imagem de gato aleatória
+*/
+
 async function fetchJokes() {
   try {
     const { data } = await axios.get(jokeApiURL); // restric results with flags
@@ -28,7 +42,7 @@ async function fetchJokes() {
   }
 }
 
-bot.onText(/\/start/, (msg, match) => {
+bot.onText(commands.init, (msg, match) => {
   const { id } = msg.chat;
   bot.sendMessage(
     id,
@@ -36,14 +50,14 @@ bot.onText(/\/start/, (msg, match) => {
   );
 });
 
-bot.onText(/\/piada/, async (msg) => {
+bot.onText(commands.joke, async (msg) => {
   const { id } = msg.chat;
   const joke = await fetchJokes();
   const response = `${joke.setup} ${joke.punchline}`;
   bot.sendMessage(id, response);
 });
 
-bot.onText(/\/repetir (.+)/, (msg, match) => {
+bot.onText(commands.repeat, (msg, match) => {
   const { id } = msg.chat;
   if (match) {
     bot.sendMessage(id, `[TeTa] ${match[1]}`);
@@ -52,7 +66,7 @@ bot.onText(/\/repetir (.+)/, (msg, match) => {
   }
 });
 
-bot.onText(/\/gatos/, async (msg) => {
+bot.onText(commands.cat, async (msg) => {
   const { id } = msg.chat;
   const api = catApiInstance();
   const { data } = await api.get('/images/search');
